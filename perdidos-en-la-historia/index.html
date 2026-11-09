@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Perdidos en la Historia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&family=Cinzel:wght@800;900&display=swap">
+<style>
+/* Concepto: una sola columna de juego, oscura como una vitrina, con cada sala en su color y una banda de teselas como firma. */
+:root{
+  color-scheme:dark;
+  --night:#14100c; --ink:#1f1913; --line:rgba(255,240,214,.16); --bone:#f6ecd9; --muted:#b9ab94;
+  --amber:#d4920f; --amber-hi:#f0b63a; --room:#2a1a0c; --panel:#3a2813;
+  --ok:#4e9d3d; --bad:#d4403a;
+  --t1:#009797; --t2:#c3d66a; --t3:#f7a623; --t4:#746b89; --t5:#d43b3d; --t6:#6ebe4e;
+  --display:Cinzel,"Times New Roman",serif; --cond:"Barlow Condensed","Arial Narrow",sans-serif; --body:Barlow,system-ui,sans-serif;
+  --g:max(20px,env(safe-area-inset-left,0px)); --gr:max(20px,env(safe-area-inset-right,0px));
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--night);color:var(--bone);font:500 16px/1.45 var(--body);-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--night)}
+button,input{font:inherit;color:inherit}
+h1,h2,h3,p,ol,ul{margin:0;padding:0}
+ul,ol{list-style:none}
+#app{--room:#2a1a0c;--panel:#3a2813;max-width:480px;min-height:100%;margin:0 auto;display:flex;flex-direction:column;background:var(--room);transition:background .35s}
+#app.red{--room:#3f0606;--panel:#5a1a18}
+#app.blue{--room:#0d0834;--panel:#221d55}
+#app.gold{--room:#3a2607;--panel:#5a3c0d}
+.tess{height:6px;flex:none;background:repeating-linear-gradient(90deg,var(--t3) 0 12px,var(--night) 12px 14px,var(--t4) 14px 26px,var(--night) 26px 28px,var(--t2) 28px 40px,var(--night) 40px 42px,var(--t1) 42px 54px,var(--night) 54px 56px)}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;flex:none;background:var(--night);display:flex;align-items:center;gap:12px;padding:10px var(--gr) 10px var(--g);border-bottom:1px solid var(--line)}
+.bar img{width:40px;height:34px;display:block;flex:none}
+.bar b{font:700 13px/1.1 var(--cond);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);flex:1;min-width:0}
+.bar span{font:800 18px/1 var(--cond);font-variant-numeric:tabular-nums;color:var(--amber-hi);flex:none}
+main{flex:1 0 auto;display:flex;flex-direction:column;padding:26px var(--gr) 26px var(--g);gap:20px}
+.eyebrow{font:700 14px/1.1 var(--cond);letter-spacing:.14em;text-transform:uppercase;color:var(--amber-hi)}
+h1.t,h2.t{font:800 clamp(30px,8.6vw,38px)/1.02 var(--cond);text-transform:uppercase;letter-spacing:.005em;text-wrap:balance}
+.lead{color:var(--muted);font-size:17px}
+.cta{display:block;width:100%;min-height:56px;border:0;border-radius:6px;background:var(--amber-hi);color:#20140a;font:800 21px/1 var(--cond);letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:transform .12s,background .15s}
+.cta:hover:not(:disabled){background:#ffc957}
+.cta:active:not(:disabled){transform:translateY(1px)}
+.cta:disabled{background:rgba(255,240,214,.13);color:var(--muted);cursor:not-allowed}
+.ghost{background:none;border:0;color:var(--muted);text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:8px;font-size:15px}
+:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
+.push{margin-top:auto;display:flex;flex-direction:column;gap:10px}
+.hint{text-align:center;color:var(--muted);font-size:14px}
+
+/* Audio */
+.play{position:sticky;bottom:env(safe-area-inset-bottom,0px);z-index:5;flex:none;background:var(--night);border-top:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:13px var(--gr) 13px var(--g)}
+.snd{width:40px;height:40px;flex:none;display:grid;place-items:center;background:none;border:1px solid var(--line);border-radius:6px;color:var(--bone);cursor:pointer;padding:0}
+.pp{width:50px;height:50px;border-radius:50%;border:0;background:var(--bone);display:grid;place-items:center;cursor:pointer;flex:none;padding:0}
+.pp svg{width:20px;height:20px;fill:var(--night)}
+.wave{flex:1;min-width:0;height:46px;display:flex;align-items:center;gap:2px;cursor:pointer;touch-action:none}
+.wave i{flex:1;min-width:1px;background:rgba(255,240,214,.28);border-radius:1px;transition:background .1s}
+.wave i.on{background:var(--amber-hi)}
+.time{font:700 15px/1 var(--cond);color:var(--muted);flex:none;width:34px;text-align:right;font-variant-numeric:tabular-nums}
+.say{min-height:120px;display:flex;align-items:center;font:700 clamp(26px,7vw,31px)/1.2 var(--body);text-wrap:balance}
+.lyr-head{display:flex;justify-content:space-between;align-items:center}
+.size{border:1px solid var(--line);background:none;border-radius:6px;min-width:48px;height:40px;font:700 16px/1 var(--body);cursor:pointer}
+.lyr{position:relative;flex:1 1 auto;height:clamp(240px,48vh,520px);overflow-y:auto;display:flex;flex-direction:column;align-items:stretch;gap:6px;scrollbar-width:none;padding-bottom:30vh;--ly:29px}
+.lyr::-webkit-scrollbar{display:none}
+.lyr.s2{--ly:35px}.lyr.s3{--ly:42px}
+.ln{display:block;width:100%;background:none;border:0;padding:5px 0;text-align:left;font:700 var(--ly)/1.18 var(--body);color:rgba(246,236,217,.42);cursor:pointer;transition:color .18s}
+.ln.past{color:rgba(246,236,217,.62)}
+.ln.now{color:#fff}
+.ln.cue{font-style:italic;font-weight:600;color:rgba(240,182,58,.65)}
+.ln.cue.now{color:var(--amber-hi)}
+.lyr.empty{height:auto;padding:0;flex:none;color:var(--muted);font-size:17px}
+.steps{display:flex;gap:3px}
+.steps i{flex:1;height:5px;background:rgba(255,240,214,.16)}
+.steps i.on{background:var(--amber-hi)}
+.num{font:900 clamp(96px,30vw,136px)/.9 var(--display);color:var(--amber-hi)}
+.stop{justify-content:flex-start}
+.listen{display:flex;gap:10px;align-items:center;color:var(--muted);font-size:15px}
+
+/* Portada */
+.cover{justify-content:space-between;padding-top:40px;gap:30px}
+.brand{font:900 clamp(50px,14.6vw,70px)/.98 var(--display);color:var(--bone)}
+.brand em{font-style:normal;color:var(--amber-hi);display:block;font-size:.52em;line-height:1.3}
+.foot{flex:none;background:#6b3b00;color:var(--bone);padding:22px var(--gr) 26px var(--g);display:flex;gap:16px;justify-content:space-between;align-items:flex-end;color:var(--muted);font-size:13px;line-height:1.45}
+.foot a{color:var(--bone)}
+.foot img{width:110px;height:auto;flex:none;border-radius:3px}
+
+/* Registro */
+.field label{display:block;font:700 15px/1 var(--cond);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.field input{width:100%;height:54px;border:1px solid var(--line);border-radius:6px;background:rgba(255,240,214,.08);padding:0 14px;font-size:17px}
+.field input:focus{outline:2px solid var(--amber-hi);outline-offset:0;border-color:transparent}
+.fields{display:flex;flex-direction:column;gap:16px}
+.cast{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.who{cursor:pointer;display:grid;place-items:center}
+.who input{position:absolute;opacity:0;width:0;height:0}
+.who img{width:min(88px,100%);height:auto;border-radius:50%;display:block;transition:transform .16s,box-shadow .16s}
+.who:hover img{transform:scale(1.07)}
+.who input:checked+img{box-shadow:0 0 0 3px var(--room),0 0 0 6px var(--amber-hi);transform:scale(1.04)}
+.who input:focus-visible+img{outline:3px solid var(--bone);outline-offset:7px}
+.err{color:#ffb3a8;font-weight:600;text-align:center}
+.nfc{align-self:center;width:180px;height:180px;border:0;border-radius:50%;background:radial-gradient(circle,var(--amber-hi) 0 26%,transparent 27%),repeating-radial-gradient(circle,transparent 0 20px,rgba(240,182,58,.35) 20px 22px);display:block}
+.sec{display:flex;flex-direction:column;gap:12px}
+.sec>h2{font:800 22px/1.1 var(--cond);text-transform:uppercase}
+
+/* Misión y prueba */
+.frame{align-self:center;max-width:100%;padding:8px;background:var(--panel);display:block}
+.frame img{display:block;height:min(32vh,230px);width:auto;max-width:100%;object-fit:contain}
+.timer{height:8px;background:rgba(255,240,214,.16);position:sticky;top:calc(55px + env(safe-area-inset-top,0px));z-index:5;flex:none}
+.timer i{display:block;height:100%;background:var(--amber-hi);transform-origin:left;width:100%}
+.timer.low i{background:var(--bad)}
+.q-top{display:flex;justify-content:space-between;align-items:baseline}
+.sec-left{font:800 34px/1 var(--cond);font-variant-numeric:tabular-nums}
+.q{font:800 25px/1.08 var(--cond);text-transform:uppercase;text-wrap:balance}
+.q-frame img{height:min(22vh,150px)}
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{width:100%;min-height:56px;display:flex;align-items:center;gap:13px;text-align:left;border:1px solid var(--line);border-radius:6px;background:rgba(255,240,214,.08);padding:9px 14px;font-weight:600;font-size:17px;line-height:1.2;cursor:pointer;transition:background .13s,border-color .13s}
+.opt:hover:not(:disabled){background:rgba(255,240,214,.2);border-color:var(--bone)}
+.opt:disabled{cursor:default}
+.opt.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.opt.bad{background:var(--bad);border-color:var(--bad);color:#fff}
+.opt.dim{opacity:.5}
+.mk{width:18px;height:18px;flex:none;display:block}
+.m0{background:var(--t3);border-radius:0 8px 0 4px}.m1{background:var(--t4);border-radius:4px}.m2{background:var(--t2);border-radius:50%}.m3{background:var(--t1)}
+
+/* Respuesta */
+.verdict{font:800 clamp(42px,12vw,54px)/.95 var(--cond);text-transform:uppercase}
+.verdict.no{color:#ff9a8f}.verdict.yes{color:#a6e08f}
+.answer{display:flex;gap:12px;align-items:flex-start;background:var(--panel);padding:15px;font:700 19px/1.2 var(--body)}
+.answer .mk{margin-top:2px}
+.why{font-size:18px;line-height:1.5;color:var(--bone)}
+.pts{font:800 22px/1 var(--cond);color:var(--amber-hi)}
+
+/* Ranking */
+.pod{display:grid;grid-template-columns:1fr 1.1fr 1fr;gap:6px;align-items:end;height:280px}
+.pod>div{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;min-width:0;height:100%}
+.pod b{font:800 34px/1 var(--cond);margin-bottom:6px}
+.pod i{display:block;width:100%;animation:rise .55s ease-out both}
+.pod span{font:700 16px/1.1 var(--cond);margin-top:8px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pod small{font:600 14px/1 var(--cond);color:var(--muted);margin-top:3px}
+@keyframes rise{from{transform:scaleY(.15);transform-origin:bottom}to{transform:scaleY(1);transform-origin:bottom}}
+.rest{display:flex;flex-direction:column;gap:7px}
+.rest li{display:flex;align-items:center;gap:11px;font:700 19px/1 var(--cond)}
+.rest em{font-style:normal;width:14px;color:var(--muted)}
+.rest span{flex:1;min-width:0;padding:9px 12px;color:#fff;display:flex;justify-content:space-between;gap:8px}
+.me{outline:2px solid var(--bone);outline-offset:1px}
+.me-t{text-decoration:underline;text-underline-offset:3px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+const PEAKS={"1":[44,64,6,71,72,34,6,6,16,24,16,6,41,67,68,40,40,19,6,74,50,6,100,35,6,56,73,46,58,63,57,28,6,39,50,53,71,42,18,6,91,96,52,6,93,73,72,58,55,63,44,43,35,6],"2":[42,84,100,82,64,25,9,6,8,21,81,100,84,54,49,87,84,64,38,10,6,52,70,97,91,63,52,76,53,41,60,57,54,64,66,55,58,54,49,15,18,19,10,6,6,6,6,6,6,9,6,6,6,6],"3":[51,32,9,32,48,23,6,82,53,43,8,6,22,44,50,34,6,39,67,62,36,13,54,41,16,24,48,39,21,6,62,66,53,53,20,61,69,100,45,50,57,33,73,56,87,62,70,66,21,74,86,80,68,18],"4":[85,29,67,60,41,76,66,67,55,54,82,69,83,37,48,75,62,81,89,68,64,79,76,34,87,74,46,80,88,73,50,58,72,59,12,62,74,55,74,86,39,100,58,69,73,67,31,37,74,79,49,70,62,51],"5":[100,91,43,83,57,80,19,97,57,64,67,54,54,90,63,29,50,45,56,41,43,77,59,27,42,32,30,63,60,55,44,81,59,60,60,24,79,82,59,67,62,67,80,52,84,72,45,72,71,31,48,61,19,18],"6":[69,48,33,33,35,26,52,42,49,25,44,43,37,53,45,6,6,73,38,57,37,41,58,43,50,33,56,60,54,47,54,56,48,30,49,43,26,56,52,27,36,35,53,99,100,47,56,61,22,6,33,43,39,6],"7":[49,52,49,27,6,28,39,26,55,58,39,42,44,36,35,39,38,47,18,56,59,46,30,100,83,70,29,57,54,27,60,58,43,50,53,43,48,36,24,40,36,28,32,54,43,48,34,16,29,28,38,32,42,8],"8":[56,41,10,6,6,46,29,61,42,6,60,43,10,41,34,7,69,47,38,61,45,45,56,26,57,54,50,47,57,49,46,21,78,57,54,55,47,43,54,64,84,89,100,35,53,53,63,41,68,53,11,48,44,13],"9":[89,56,89,70,45,82,68,71,71,43,42,91,56,79,62,54,75,38,99,67,91,47,32,100,74,65,50,35,71,36,70,44,65,37,99,64,77,56,90,91,47,63,33,99,49,82,66,65,68,44,72,61,52,56],"10":[42,36,39,19,21,46,39,40,45,43,35,19,46,59,48,55,45,19,79,69,71,49,45,31,6,61,47,59,54,60,46,47,24,76,65,51,43,14,60,51,42,25,52,58,51,34,88,100,66,53,58,64,48,10],"11":[48,52,14,58,37,26,44,47,43,10,57,45,9,50,52,53,32,16,48,56,48,39,26,53,54,53,39,43,50,44,32,66,43,39,36,11,59,51,20,32,11,47,26,87,100,71,38,24,6,56,44,28,34,17],"12":[42,41,21,38,10,26,22,29,15,6,49,37,17,46,43,44,42,18,30,35,42,50,43,20,60,41,19,54,42,32,74,100,56,33,37,55,44,23,50,52,41,38,83,83,73,11,6,28,44,32,19,6,34,19],"13":[80,62,60,11,33,47,21,41,39,30,53,50,6,6,72,100,45,83,67,6,91,83,71,70,63,36,11,79,66,66,69,54,61,29,87,84,62,71,45,10,68,53,12,67,67,66,48,53,33,7,47,51,34,19],"14":[100,61,53,21,32,19,67,73,57,54,42,43,84,68,29,53,66,61,57,25,51,73,75,88,32,89,79,57,57,50,45,44,86,64,24,61,34,45,71,50,65,28,53,87,64,93,12,73,68,6,6,17,84,21],"15":[71,66,49,58,77,77,58,18,58,52,24,45,60,57,51,55,49,36,6,87,64,40,43,56,46,6,46,68,32,32,85,74,62,38,21,49,42,34,50,96,86,26,100,38,47,35,86,81,27,45,63,45,40,20],"16":[56,49,37,41,27,50,49,39,39,27,43,57,41,61,51,40,19,62,32,48,34,13,6,6,71,52,44,22,100,65,18,60,56,25,46,27,46,64,47,31,6,7,70,53,40,42,30,64,18,62,38,32,33,13],"17":[79,78,85,80,80,51,79,79,58,62,82,97,78,100,90,66,65,16,90,57,94,62,7,60,51,80,53,14,54,54,60,19,71,55,87,54,52,98,82,77,83,92,80,64,94,92,82,70,83,78,81,61,58,43]};
+/* Subtítulos: SUBS[n]=[[inicio_en_segundos,'frase'],…]. Vacío hasta tener la transcripción. */
+const SUBS={"1":[[0,"Espera, antes de entrar."],[2.25,"¿Has oído eso?"],[3.55,"No venía de tu teléfono."],[5.57,"Bueno, ahora sí, pero antes venía de mi mano."],[9.57,"Estaba escribiendo algo."],[11.31,"Me llamo Leo."],[12.47,"Mi madre me llamaba así cuando no estaba enfadada."]],"2":[[0,"Madre: Leo, Leo cariño, ven que ya está la comida en la mesa.",1]],"3":[[0,"Recuerdo su cara."],[1.91,"Recuerdo una puerta."],[3.61,"Y un mensaje que tenía que darle."],[6.29,"Pero cada vez que intento leerlo,"],[8.95,"nada."],[9.59,"No logro recordarlo."],[11.35,"Tú puedes moverte por aquí."],[13.35,"Yo solo consigo recordar trozos."],[15.85,"¿Me acompañarías a encontrar ese mensaje?"],[18.37,"De verdad, era muy importante."],[20.55,"Necesito recordarlo."],[22.27,"Ven, ven."],[23.11,"Acompáñame por aquí, por la pared de las fechas."],[25.81,"Vamos a intentar averiguar dónde me he quedado."]],"4":[[0,"Empieza por la loba, 753 a. C.,"],[4.89,"el año en que, según la tradición,"],[7.33,"empezó Roma."],[8.67,"Después, 509, se acaba la monarquía,"],[12.49,"república."],[13.43,"Sigue hacia la derecha, Sagunto."],[15.95,"Aníbal la toma en 219."],[18.35,"Al año siguiente, llegan los romanos a la península."],[21.39,"Más adelante, 138, fundan Valentia."],[25.25,"Y en el 27, Augusto, el Imperio."],[28.51,"Yo estoy por ahí, un poco después."],[31.69,"Sigue hasta el 476, el final del Imperio Romano de"],[35.71,"Occidente, y mucho después,"],[38.63,"711, la llegada de los árabes a la península."],[41.85,"¡Qué raro!"],[42.89,"A mí una tarde me parecía interminable."],[45.39,"Aquí caben siglos sin que tengas que dar un paso."]],"5":[[0,"Ahora busca el mapa grande del imperio,"],[2.27,"el del siglo II."],[3.73,"Encuentra la península."],[5.35,"Roma llegó a estas tierras a finales del siglo III"],[8.17,"a. C."],[9.47,"Su dominio duró más de seis siglos."],[12.17,"Desde aquí parece fácil."],[13.89,"Un color que se extiende."],[15.71,"Desde dentro era gente que llegaba."],[18.11,"Otras órdenes, otras palabras."],[20.85,"Mira la frase dorada de Tito Livio."],[23.07,"Habla del dominio de Escipión y los romanos sobre gran"],[25.81,"parte de Hispania."],[34.79,"Lo recuerdo bastante bien."],[37.49,"Casi como si retumbara en mi cabeza."]],"6":[[0,"Vuelve al arco y asómate al mosaico."],[2.97,"Parece una alfombra, ¿verdad?"],[5.01,"Son piezas pequeñas, flores,"],[7.63,"hojas, estrellas, blanco y negro."],[11.37,"Busca dónde cambia el color."],[14.99,"El medallón."],[16.43,"Fáustulo y su hermano."],[17.97,"La cueva."],[18.99,"La loba y los dos niños."],[21.07,"Rómulo y Remo."],[22.63,"Este suelo estaba en una villa de Font de Mussa,"],[25.39,"en Benifaió."],[26.45,"Mi madre hacía mosaicos."],[28.13,"No este."],[28.75,"Otros que no sé si alguien habrá encontrado."],[31.87,"Por la noche seguía teniendo polvo entre los dedos."],[34.95,"Yo quería trabajar en un barco."],[36.95,"Madre: Espera, Leo, no tienes que marcharte ya.",1],[39.57,"Yo no quiero pasarme la vida mirando al suelo."],[43.35,"No sé por qué recuerdo eso y no el mensaje."]],"7":[[0,"Busca las figuras doradas del panel de las dos culturas."],[3.67,"Ese cambio no ocurrió de golpe."],[6.25,"Cambió quién mandaba, cómo se compraba,"],[9.05,"qué leyes había y, poco a poco,"],[12.15,"también cómo hablábamos."],[13.89,"En mi casa, mi madre insistía con el latín."],[16.81,"Madre: ¡Apréndelo bien, Leo!",1],[18.29,"Madre: Te hará falta.",1],[19.49,"Mi abuela seguía hablando en íbero."],[21.71,"Abuela: Y lo nuestro no lo olvides.",1],[24.17,"Yo elegía la lengua en la que me resultaba más fácil"],[26.91,"conseguir lo que quería."],[27.95,"Bastante listo, pensaba."],[30.75,"Hasta que un día quise contarle a mi madre algo importante"],[33.73,"y no supe hacerlo en ninguna."],[36.67,"Ven, las espadas están después."]],"8":[[0,"Busca la hoja curva."],[3.29,"La falcata, un arma ibérica."],[6.13,"Junto a ella, lanzas, puñales,"],[8.95,"hondas."],[9.97,"Ahora la recta y corta."],[11.77,"El gladius romano."],[13.23,"El de aquí es una réplica."],[14.97,"También están el pilum, una jabalina,"],[17.45,"y el pugio, un puñal."],[19.47,"Mi abuela podía discutir una tarde entera sobre cuál"],[22.63,"era mejor."],[23.51,"Abuela: La curva.",1],[24.51,"Abuela: La curva es mejor.",1],[25.79,"Abuela: No hay discusión.",1],[26.97,"¿Y tú?"],[27.69,"¿Has utilizado alguna?"],[28.69,"Abuela: ¿No tenías algo que hacer?",1],[31.33,"Yo también hacía eso."]],"9":[[0,"Ahí está otra vez."],[1.59,"Busca la lámina gris de plomo,"],[3.29,"la que tiene signos."],[4.81,"Es del Castellet de Bernabé,"],[6.43,"en Llíria, del siglo III a. C."],[10.21,"Está escrita en íbero."],[12.03,"Algunos signos representan sílabas,"],[14.39,"otros consonantes o vocales."],[16.75,"Hoy podéis leer sus sonidos,"],[18.41,"pero todavía no traducir sus textos por completo."],[21.47,"Al lado hay una inscripción latina dedicada a dos personas"],[24.63,"esclavizadas."],[26.03,"Esa lengua sí la entendéis."],[28.03,"Mira cuánto dura una marca."],[30.01,"Más que la mano que la hizo."],[31.77,"Yo también escribí después de discutir."],[34.21,"No en plomo, en cera."],[36.05,"Quería decirle que no me marchaba por ella."],[38.63,"No me sale el resto."],[40.11,"Vamos a dejarlo un momento."],[41.75,"Pasa por monedas, construcción,"],[44.01,"vajilla y arte."],[45.47,"Míralas sin prisa."],[46.83,"Después habrá pruebas sobre lo que has visto."],[49.19,"Te espero en Religión."]],"10":[[0,"Acércate a las figuritas oscuras."],[2.69,"Los íberos dejaban exvotos como estos en sus lugares"],[5.71,"de culto."],[6.93,"De muchos de sus dioses no conocemos los nombres."],[9.99,"Los romanos adoraron a dioses de procedencias distintas."],[13.67,"Mucho después, el cristianismo se convirtió en Religión"],[16.59,"oficial del imperio."],[18.07,"Mi abuela tenía una figura pequeña en casa."],[20.75,"Cuando yo iba a salir, le hablaba."],[22.85,"No hace falta que pidas permiso por mí."],[25.07,"Abuela: No estoy pidiendo permiso,",1],[26.67,"Abuela: Leo.",1],[27.29,"Abuela: Estoy pidiendo que vuelvas.",1]],"11":[[0,"Busca los pendientes de oro."],[1.97,"Uno ibérico, de Moixent."],[4.33,"Otro romano, de Valencia."],[6.63,"Los separan muchos siglos."],[8.59,"Los objetos de lujo distinguían a quienes podían pagarlos."],[12.13,"Parte del oro y la plata venía de las minas de Hispania."],[15.23,"Los orfebres íberos dominaban técnicas como el granulado,"],[18.67,"el nielado y el puntilleado."],[20.75,"Mi madre trabajaba para gente que tenía joyas así."],[23.93,"Ella llevaba un pendiente sencillo,"],[26.19,"uno solo."],[27.13,"El otro lo había perdido."],[28.91,"Nadie me mira las dos orejas a la vez."],[32.55,"Aquella mañana lo llevaba,"],[34.35,"el día que discutimos."]],"12":[[0,"Busca la estatua blanca."],[1.97,"Baco."],[2.83,"La copa se llama kantharos."],[5.31,"Mira la pantera junto a él."],[7.03,"El otro atributo que llevaba era un bastón."],[9.69,"El tirso."],[10.79,"Lo que ves es una réplica."],[12.45,"El original está en Madrid."],[14.15,"Me imagino aquí a mi madre."],[16.01,"Mira cómo están hechas las manos."],[18.01,"Yo habría mirado la copa."],[19.71,"¿Y si me hubiera pillado imitándolo?"],[21.79,"Madre: Leo, deja de hacer el tonto.",1],[24.81,"Eso es lo que más echo de menos."],[27.03,"Que me interrumpa."]],"13":[[0,"Ahora busca la garra de mármol."],[2.19,"Le falta el animal."],[3.89,"Pero tu cabeza casi consigue ponerlo ahí."],[7.69,"Venía de Ilici, en L'Alcúdia d'Elx."],[10.47,"La colonia romana continuó una ciudad ibérica importante."],[14.09,"Hubo un templo a Juno, termas,"],[16.29,"una basílica…"],[17.57,"El lugar siguió allí mientras cambiaba la vida dentro."],[20.87,"Mira otra vez la garra."],[22.43,"No hace falta tenerlo todo para empezar a reconocer"],[25.17,"algo."],[25.95,"Creo que eso nos está pasando."]],"14":[[0,"La varilla de bronce."],[1.59,"¿La ves?"],[2.57,"Es un stilus."],[4.17,"La tablilla de cera que la acompaña es una copia."],[7.57,"Escribías marcando la superficie."],[9.81,"Después, podías alisarla y empezar otra vez."],[12.95,"Aquí, una inscripción habla de un municipio."],[16.09,"Y un barco hundido frente a la costa conserva pistas"],[18.75,"de su comercio."],[20.11,"Yo escribí tres comienzos."],[22.43,"Borré los tres."],[23.71,"Todos sonaban como si quisiera ganar la discusión."],[26.43,"Al final puse: quiero irme."],[29.67,"Pero no quiero..."],[32.75,"Había algo más."]],"15":[[0,"Busca los recipientes de vidrio,"],[2.03,"los dibujos, no los objetos."],[4.47,"Es una litografía."],[6.49,"Lucentum estaba en el Tossal de Manises,"],[8.93,"en Alacant."],[10.17,"Tenía muralla, casas, tiendas y termas."],[14.05,"Quizá también un puerto cerca."],[15.93,"Yo quería ver lo que había al otro lado del mar."],[18.51,"No ser siempre el hijo de alguien."],[20.89,"Presentarme y decir: soy Leo."],[23.35,"Solo eso."],[24.51,"Ahora que nadie me llama, resulta que echo de menos"],[27.27,"lo de ser el hijo de alguien."]],"16":[[0,"Busca el cuenco de los pinchos,"],[1.85,"la jarra y la lámpara."],[3.87,"Formaban parte de un ajuar funerario de los siglos"],[6.47,"I y II."],[8.29,"Proceden de Dianium, Dénia,"],[10.55,"un importante puerto comercial y militar."],[13.35,"Alguien eligió esas cosas para acompañar a una persona"],[16.05,"que había muerto."],[18.95,"Mi madre dejaba una luz cuando yo tardaba en volver."],[22.25,"Madre: No es para que encuentres la casa.",1],[24.45,"Madre: Es para que sepas que sigo despierta.",1],[26.99,"No hace falta que me esperes."],[28.53,"Nunca le dije que me gustaba verla encendida."],[33.07,"Quedan Edeta, Valentia, Saetabi y Saguntum."],[37.21,"Detente a mirarlas."],[38.65,"Luego ven al mapa rojo."],[40.67,"Creo que ya sé qué me falta."]],"17":[[0,"Busca Saguntum, Valentia, Dianium,"],[3.89,"Ilici."],[4.95,"Roma organizó el territorio en provincias."],[7.75,"En distintas épocas, estas tierras quedaron en la Citerior,"],[11.31,"la Tarraconense y la Cartaginense."],[13.95,"Las ciudades extendían su forma de gobernar y vivir."],[17.23,"La vía Augusta las conectaba dentro de una gran ruta."],[20.67,"Síguela con la mirada."],[23.51,"Yo solo veía el camino de ida."],[25.91,"Creo que mi madre también estaba mirando el de vuelta."],[29.95,"Ya está."],[31.05,"Quiero irme."],[32.17,"Pero no quiero que pienses que me sobra lo que tengo"],[34.69,"aquí."],[37.13,"Eso escribí."],[38.25,"Y debajo: no dejes de encender la luz."],[42.23,"No sé si llego a leerlo."],[43.85,"Pero ya no quiero cambiar ninguna palabra."],[46.73,"Gracias por quedarte conmigo."],[48.51,"Ahora busca el NFC que cierra la sala."],[51.21,"Te asignará una prueba."],[52.69,"Ve andando."],[53.59,"El tiempo no empieza hasta que estés delante y actives"],[56.11,"su NFC."],[57.35,"Tendrás 20 segundos."],[58.53,"Si vienes con más gente, cada persona tendrá una distinta."],[62.13,"Cuando terminéis, podréis ver la clasificación."],[64.93,"Yo voy a quedarme un momento con esto."],[67.11,"Hacía mucho que no recordaba su casa con la luz encendida."]]};
+const MISSIONS=[
+ {n:'I',room:'red',img:'m1',go:'Encuentra esta vasija',q:'¿Qué se pintaba en la cerámica ibérica?',o:['Ropa y joyas','Animales y figuras femeninas','Motivos geométricos, guerras y escenas cotidianas','Vegetación, figuras y motivos geométricos'],a:3,
+  why:'En la cerámica ibérica (siglos VI al I a. C.) se pintaban principalmente motivos geométricos, elementos vegetales y, en fases más avanzadas, figuras de animales, guerreros y escenas de la vida cotidiana o mitológicas.'},
+ {n:'II',room:'red',img:'m2',go:'Dirígete a esta figura',q:'¿Qué representa esta figura?',o:['Un emperador romano','Dios romano del vino','Dios griego de los animales','Dios romano del amor'],a:1,
+  why:'La figura representa a Baco, un joven dios romano del vino y los banquetes. Se asocia a símbolos como la vid, la copa de vino y el tirso, un bastón envuelto en hiedra y hojas de vid. Las representaciones sin ropa solían estar reservadas para figuras divinas. La sociedad romana era bastante pudorosa como para representar a una figura tan importante como era el emperador desnudo públicamente.'},
+ {n:'III',room:'red',img:'m3',go:'Dirígete a este mapa',q:'Basándote en la leyenda, ¿cuántas ciudades hay en el mapa?',o:['5','11','9','8'],a:2,
+  why:'Roma dividió su territorio en provincias porque creció tanto que ya no podía gobernarlo todo desde la capital. Enviaban a un jefe llamado gobernador para que mantuviese la paz y se asegurase de que se obedecían las leyes.'},
+ {n:'IV',room:'blue',img:'m4',go:'Encuentra las ánforas',q:'¿Cuántas ánforas hay?',o:['11','14','18','16'],a:3,
+  why:'Muchas ánforas tienen una base en punta o cónica, lo que permitía encajarlas de forma compacta en la bodega de los barcos mercantes y aprovechar al máximo el espacio.'},
+ {n:'V',room:'blue',img:'m5',go:'Dirígete a esta estantería',q:'¿Cuál de estas afirmaciones es la correcta?',o:['Los productos se transportaban en cajas de madera','El interior se recubría con resina de pez','Se decoraban con estampados','Solo se transportaban productos sólidos'],a:1,
+  why:'Se fabricaban principalmente en arcilla cocida, terracota o barro, y a veces se impermeabilizaban por dentro con resina, brea o cera de abeja. Eran muy comunes para transportar y almacenar a gran escala líquidos y sólidos.'},
+ {n:'VI',room:'blue',img:'m6',go:'Dirígete a las vitrinas de monedas',q:'¿Cuántas monedas hay sin retratos como elemento principal? (Total de ambas vitrinas)',o:['22','14','19','17'],a:2,
+  why:'Las monedas romanas sin retratos son comunes en los inicios de la República, época en la cual estaba prohibido estampar el rostro de un ciudadano vivo en una moneda. En su lugar, el anverso mostraba a dioses del panteón romano.'}
+];
+const RIVALS=[['SANTIAGO',310,290],['CARLA',260,270],['ÁLVARO',210,250],['FLORENCIA',150,180],['NACHO',90,120],['MARÍA',60,90]];
+const LIMIT=20;
+
+const app=document.getElementById('app'),audio=new Audio();audio.preload='auto';
+let S=load(),gesture=false,cleanup=null,skipHash=false;
+function load(){try{return JSON.parse(localStorage.getItem('peh'))||fresh()}catch(e){return fresh()}}
+function fresh(){return{name:'',email:'',who:0,ans:{}}}
+function save(){try{localStorage.setItem('peh',JSON.stringify(S))}catch(e){}}
+const esc=s=>String(s).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
+const score=()=>Object.values(S.ans).reduce((s,v)=>s+v.pts,0);
+const $=i=>document.getElementById(i);
+const bar=t=>`<div class="tess"></div><header class="bar"><img src="assets/logo.png" alt="Museu de Prehistòria de València"><b>${t}</b><span aria-label="Puntos">${score()} pts</span>${sndBtn()}</header>`;
+const fmt=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
+const ICON={play:'<svg viewBox="0 0 20 20"><path d="M4 1l14 9-14 9z"/></svg>',pause:'<svg viewBox="0 0 20 20"><path d="M3 1h5v18H3zM12 1h5v18h-5z"/></svg>'};
+const playerHTML=n=>`<div class="play"><button class="pp" id="pp" aria-label="Reproducir">${ICON.play}</button><div class="wave" id="wv" role="slider" tabindex="0" aria-label="Avanzar o retroceder el audio">${(PEAKS[n]||[]).map(h=>`<i style="height:${h}%"></i>`).join('')}</div><span class="time" id="tm">0:00</span></div>`;
+
+function mountAudio(n,{onEnd,auto,noSkip}){
+  const pp=$('pp'),wv=$('wv'),tm=$('tm'),ly=$('lyr'),bars=[...wv.children];let raf=0,max=0,cur=-2;const subs=SUBS[n]||[];
+  if(ly&&subs.length)ly.innerHTML=subs.map(([t,x,c],i)=>`<button class="ln${c?' cue':''}" data-i="${i}">${esc(x)}</button>`).join('');
+  const lines=ly?[...ly.querySelectorAll('.ln')]:[],calm=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  audio.pause();audio.src=`assets/audio/${String(n).padStart(2,'0')}.mp3`;audio.load();
+  const icon=()=>{const p=!audio.paused;pp.innerHTML=p?ICON.pause:ICON.play;pp.setAttribute('aria-label',p?'Pausar':'Reproducir')};
+  function paint(){const d=audio.duration||1,f=audio.currentTime/d,k=Math.round(f*bars.length);max=Math.max(max,audio.currentTime);
+    bars.forEach((b,i)=>b.classList.toggle('on',i<k));tm.textContent=fmt(audio.currentTime);
+    if(lines.length){let k2=-1;subs.forEach(([t],i)=>{if(audio.currentTime>=t)k2=i});if(k2!==cur){cur=k2;lines.forEach((l,i)=>{l.classList.toggle('past',i<k2);l.classList.toggle('now',i===k2)});if(k2>=0)ly.scrollTo({top:Math.max(0,lines[k2].offsetTop-ly.clientHeight*.3),behavior:calm?'auto':'smooth'})}}}
+  function loop(){paint();if(!audio.paused)raf=requestAnimationFrame(loop)}
+  const start=()=>audio.play().then(()=>{gesture=true;icon();loop()}).catch(()=>icon());
+  pp.onclick=()=>{if(audio.paused)start();else{audio.pause();icon()}};
+  audio.onended=()=>{icon();paint();onEnd&&onEnd()};
+  audio.onerror=()=>{tm.textContent='Error'};
+  audio.onloadedmetadata=paint;
+  lines.forEach((l,i)=>l.onclick=()=>{let t=subs[i][0];if(noSkip&&t>max)return;audio.currentTime=t;paint();if(audio.paused)start()});
+  const sb=$('size');if(sb){const set=v=>{ly.classList.remove('s2','s3');if(v>1)ly.classList.add('s'+v);sb.setAttribute('aria-label','Tamaño del texto '+v+' de 3');try{localStorage.setItem('peh-size',v)}catch(e){}};let v=1;try{v=+localStorage.getItem('peh-size')||1}catch(e){}set(v);sb.onclick=()=>{v=v%3+1;set(v)}}
+  const seek=x=>{const r=wv.getBoundingClientRect(),d=audio.duration||0;let t=Math.max(0,Math.min(1,(x-r.left)/r.width))*d;if(noSkip)t=Math.min(t,max);audio.currentTime=t;paint()};
+  wv.onpointerdown=e=>{wv.setPointerCapture(e.pointerId);seek(e.clientX);wv.onpointermove=m=>seek(m.clientX)};
+  wv.onpointerup=()=>wv.onpointermove=null;
+  wv.onkeydown=e=>{if(e.key==='ArrowLeft')audio.currentTime=Math.max(0,audio.currentTime-5);else if(e.key==='ArrowRight'&&!noSkip)audio.currentTime=Math.min(audio.duration||0,audio.currentTime+5);paint()};
+  icon();if(auto&&gesture)start();
+  return()=>{audio.pause();cancelAnimationFrame(raf);audio.onended=audio.onerror=audio.onloadedmetadata=null};
+}
+
+const V={
+ inicio(){
+  app.className='gold';
+  app.innerHTML=`<div class="tess"></div><main class="cover"><div style="display:flex;justify-content:space-between;align-items:flex-start"><img src="assets/logo.png" width="72" height="61" alt="Museu de Prehistòria de València">${sndBtn()}</div>
+  <div><h1 class="brand"><em>Perdidos en la</em>Historia</h1><p class="lead" style="margin-top:14px">Escucha o lee, busca por el museo y compite con tus amigos.</p></div>${SUBS[1]?'<div class="lyr" id="lyr" style="height:30vh;padding-bottom:12vh"></div>':''}
+  <div class="push"><button class="cta" id="go" disabled>Vamos allá</button><p class="hint" id="h">Dale al play. El botón se activa cuando acabe el audio.</p></div></main>${playerHTML(1)}
+  <footer class="foot"><div><a href="https://www.google.com/maps/search/?api=1&query=Museu+de+Prehist%C3%B2ria+de+Val%C3%A8ncia" target="_blank" rel="noopener">C/ de la Corona, 36, 46003 València</a><br>Centro Cultural la Beneficencia<br>963 883 565 · @Mupreva</div><img src="assets/roomix.png" alt="Roomix Studio"></footer>`;
+  $('go').onclick=()=>go('registro');
+  return mountAudio(1,{noSkip:true,onEnd:()=>{$('go').disabled=false;$('h').hidden=true}});
+ },
+ registro(){
+  app.className='gold';
+  app.innerHTML=bar('Tu ficha')+`<main><div><p class="eyebrow">Antes de entrar</p><h1 class="t">Crea tu jugador</h1></div>
+  <form class="fields" id="f" novalidate autocomplete="on"><div class="field"><label for="name">Nombre</label><input id="name" name="name" autocomplete="given-name" maxlength="12" value="${esc(S.name)}"></div><div class="field"><label for="email">Correo</label><input id="email" name="email" type="email" inputmode="email" autocomplete="email" value="${esc(S.email)}"></div></form>
+  <section class="sec"><h2>Elige personaje</h2><div class="cast" role="radiogroup" aria-label="Personajes">${[1,2,3,4,5,6].map(i=>`<label class="who"><input type="radio" name="who" id="who${i}" value="${i}" ${S.who==i?'checked':''}><img src="assets/p${i}.png" alt="Personaje ${i}"></label>`).join('')}</div></section>
+  <p class="err" id="err" hidden></p><div class="push"><button class="cta" id="go">Empezar recorrido</button></div></main>`;
+  const sync=()=>{S.name=$('name').value.trim();S.email=$('email').value.trim();const w=document.querySelector('[name=who]:checked');S.who=w?+w.value:0;$('err').hidden=true;save()};
+  app.querySelectorAll('input').forEach(i=>i.onchange=i.oninput=sync);
+  $('f').onsubmit=e=>e.preventDefault();
+  $('go').onclick=()=>{sync();const e=$('err');
+   if(!S.name){e.textContent='Escribe tu nombre para continuar.';e.hidden=false;$('name').focus();return}
+   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(S.email)){e.textContent='Escribe un correo válido, por ejemplo nombre@correo.com.';e.hidden=false;$('email').focus();return}
+   if(!S.who){e.textContent='Elige un personaje para continuar.';e.hidden=false;return}
+   go('audio-2')};
+ },
+ audio(n){
+  app.className='gold';
+  app.innerHTML=bar(`Audio ${n} de 17`)+`<main class="stop"><div class="steps" aria-hidden="true">${Array.from({length:17},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</div>
+  ${SUBS[n]?`<div class="lyr-head"><p class="eyebrow">Audio ${n}</p><button class="size" id="size">Aa</button></div><div class="lyr" id="lyr"></div>`:`<p class="num">${String(n).padStart(2,'0')}</p><div class="lyr empty" id="lyr">La transcripción de este audio estará disponible pronto.</div>`}
+  <div class="push"><button class="cta" id="go">${n<17?'Siguiente audio':'Ir a la primera misión'}</button></div></main>${playerHTML(n)}`;
+  $('go').onclick=()=>go(n<17?'audio-'+(n+1):'mision-1');
+  return mountAudio(n,{auto:true,onEnd:()=>{if(n<17)$('go').focus({preventScroll:true})}});
+ },
+ mision(i){
+  const m=MISSIONS[i];app.className=m.room;
+  app.innerHTML=bar(`Misión ${m.n} de VI · Sala ${m.room==='red'?'roja':'azul'}`)+`<main><div><p class="eyebrow">Misión ${m.n}</p><h1 class="t">${m.go}</h1></div><figure class="frame" style="margin:0"><img src="assets/${m.img}.png" alt=""></figure><p class="lead">Cuando la tengas delante, empieza la prueba. Tendrás ${LIMIT} segundos para responder.</p><div class="push"><button class="cta" id="go">Empezar misión ${m.n}</button></div></main>`;
+  $('go').onclick=()=>go('prueba-'+(i+1));
+ },
+ prueba(i){
+  const m=MISSIONS[i],prev=S.ans[i];app.className=m.room;
+  app.innerHTML=bar(`Misión ${m.n} de VI`)+`<div class="timer" id="tb"><i id="ti"></i></div><main><div class="q-top"><p class="eyebrow">Pregunta</p><p class="sec-left" id="sl" aria-live="off">${LIMIT}</p></div><figure class="frame q-frame" style="margin:0"><img src="assets/${m.img}.png" alt=""></figure><h1 class="q">${m.q}</h1><div class="opts">${m.o.map((t,j)=>`<button class="opt" data-j="${j}"><i class="mk m${j}"></i><span>${t}</span></button>`).join('')}</div><div class="push"><button class="cta" id="go" disabled>Ver respuesta</button></div></main>`;
+  const bs=[...app.querySelectorAll('.opt')],t0=performance.now();let raf=0,done=false,lastS=99;setMode('test');
+  function mark(j){done=true;cancelAnimationFrame(raf);bs.forEach((b,k)=>{b.disabled=true;if(k===m.a)b.classList.add('ok');else if(k===j)b.classList.add('bad');else b.classList.add('dim')});$('go').disabled=false;$('tb').hidden=true}
+  function tick(){const left=LIMIT-(performance.now()-t0)/1000;if(left<=0){S.ans[i]={j:-1,pts:0};save();$('sl').textContent='0';mark(-1);play('timeup');return}
+   {const c=Math.ceil(left);if(c!==lastS){lastS=c;if(c<=5)play('tick')}}
+   $('ti').style.transform=`scaleX(${left/LIMIT})`;$('sl').textContent=Math.ceil(left);$('tb').classList.toggle('low',left<=5);raf=requestAnimationFrame(tick)}
+  if(prev){mark(prev.j);$('sl').textContent=''}else raf=requestAnimationFrame(tick);
+  bs.forEach(b=>b.onclick=()=>{if(done)return;const j=+b.dataset.j,left=Math.max(0,LIMIT-(performance.now()-t0)/1000);S.ans[i]={j,pts:j===m.a?100+Math.round(50*left/LIMIT):0};save();mark(j);play(j===m.a?'ok':'bad')});
+  $('go').onclick=()=>go('respuesta-'+(i+1));
+  return()=>{cancelAnimationFrame(raf);setMode('roman')};
+ },
+ respuesta(i){
+  const m=MISSIONS[i],a=S.ans[i]||{j:-2,pts:0},ok=a.j===m.a;app.className=m.room;
+  const label=i===2?'Terminar fase I':i===5?'Ver resultados':'Siguiente misión';
+  app.innerHTML=bar(`Misión ${m.n} de VI`)+`<main><div><p class="verdict ${ok?'yes':'no'}">${ok?'¡Correcto!':a.j===-1?'Se acabó el tiempo':'Casi'}</p><p class="pts" style="margin-top:8px">${ok?'+'+a.pts+' puntos':'0 puntos'}</p></div><div class="answer"><i class="mk m${m.a}"></i><span>${m.o[m.a]}</span></div><p class="why">${m.why}</p><div class="push"><button class="cta" id="go">${label}</button></div></main>`;
+  $('go').onclick=()=>go(i===2?'ranking-1':i===5?'ranking-2':'mision-'+(i+2));
+ },
+ ranking(f){
+  app.className='gold';
+  const me=(S.name||'Tú').toUpperCase(),pts=f==1?Object.entries(S.ans).filter(([x])=>+x<3).reduce((s,[,v])=>s+v.pts,0):score();
+  const l=RIVALS.filter(r=>r[0]!==me).slice(0,5).map(r=>({n:r[0],p:f==1?r[1]:r[1]+r[2]}));l.push({n:me,p:pts,me:true});l.sort((a,b)=>b.p-a.p);
+  const col=['--t1','--t2','--t3','--t4','--t5','--t6'],h=[200,132,96];
+  const cell=i=>`<div><b>#${i+1}</b><i class="${l[i].me?'me':''}" style="height:${h[i]}px;background:var(${col[i]})"></i><span class="${l[i].me?'me-t':''}">${esc(l[i].n)}</span><small>${l[i].p}</small></div>`;
+  app.innerHTML=bar(f==1?'Fin de la fase I':'Fin del juego')+`<main><div><p class="eyebrow">${f==1?'Sala roja':'Clasificación final'}</p><h1 class="t">${f==1?'Resultados de la primera fase':'Resultados finales'}</h1></div><div class="pod">${[2,0,1].map(cell).join('')}</div><ol class="rest" start="4">${l.slice(3).map((r,k)=>`<li><em>${k+4}</em><span class="${r.me?'me':''}" style="background:var(${col[k+3]})"><span style="padding:0;flex:1;min-width:0">${esc(r.n)}</span><span style="padding:0;flex:none">${r.p}</span></span></li>`).join('')}</ol><div class="push"><button class="cta" id="go">${f==1?'Siguiente fase':'Volver a empezar'}</button></div></main>`;
+  play(l.findIndex(x=>x.me)===0?'win':'rank');
+  $('go').onclick=()=>{if(f==1)go('mision-4');else{S=fresh();save();go('inicio')}};
+ }
+};
+/* Sonido del juego: música y efectos sintetizados, sin archivos. No afecta a la narración. */
+const A={ctx:null,on:true,mode:'roman',ducked:false,i:0,next:0};
+try{A.on=localStorage.getItem('peh-snd')!=='0'}catch(e){}
+const SPK=on=>`<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9z"/>${on?'<path d="M15 8.5a5 5 0 0 1 0 7l-1.2-1.2a3.3 3.3 0 0 0 0-4.6zM17.6 6a8.6 8.6 0 0 1 0 12l-1.2-1.2a6.9 6.9 0 0 0 0-9.6z"/>':'<path d="M15.3 9.3l1.2-1.2 2.2 2.2 2.2-2.2 1.2 1.2-2.2 2.2 2.2 2.2-1.2 1.2-2.2-2.2-2.2 2.2-1.2-1.2 2.2-2.2z"/>'}</svg>`;
+const sndBtn=()=>`<button class="snd" id="snd" aria-pressed="${A.on}" aria-label="Música y efectos">${SPK(A.on)}</button>`;
+function musicLevel(){if(!A.ctx)return;const v=A.ducked?.02:A.mode==='test'?.2:.34;A.music.gain.setTargetAtTime(v,A.ctx.currentTime,.3);A.dr.gain.setTargetAtTime(A.mode==='test'?1:0,A.ctx.currentTime,.4)}
+function boot(){
+  if(A.ctx){if(A.ctx.state==='suspended')A.ctx.resume();return}
+  const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
+  const c=A.ctx=new C();
+  A.master=c.createGain();A.master.gain.value=A.on?1:0;
+  const comp=c.createDynamicsCompressor();A.master.connect(comp);comp.connect(c.destination);
+  A.music=c.createGain();A.music.gain.value=0;A.music.connect(A.master);
+  A.sfx=c.createGain();A.sfx.gain.value=.5;A.sfx.connect(A.master);
+  A.bus=c.createGain();A.bus.connect(A.music);A.dr=c.createGain();A.dr.gain.value=0;A.dr.connect(A.bus);
+  const nb=c.createBuffer(1,c.sampleRate*.25,c.sampleRate),nd=nb.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;A.noise=nb;
+  const d=c.createDelay(1),fb=c.createGain(),lp=c.createBiquadFilter();d.delayTime.value=.42;fb.gain.value=.36;lp.type='lowpass';lp.frequency.value=1700;
+  A.bus.connect(d);d.connect(lp);lp.connect(fb);fb.connect(d);lp.connect(A.music);
+  [[73.42,.34],[110,.16],[146.83,.07]].forEach(([f,v],k)=>{const o=c.createOscillator(),g=c.createGain(),l=c.createOscillator(),lg=c.createGain();o.frequency.value=f;g.gain.value=v;l.frequency.value=.07+k*.04;lg.gain.value=v*.4;l.connect(lg);lg.connect(g.gain);o.connect(g);g.connect(A.dr);o.start();l.start()});
+  A.next=c.currentTime+.15;setInterval(sched,100);musicLevel();
+}
+const hz=m=>440*Math.pow(2,(m-69)/12);
+function pluck(t,m,v){const c=A.ctx,o=c.createOscillator(),g=c.createGain(),f=c.createBiquadFilter();o.type='triangle';o.frequency.value=hz(m);f.type='lowpass';f.frequency.setValueAtTime(2600,t);f.frequency.exponentialRampToValueAtTime(500,t+1.1);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+1.5);o.connect(f);f.connect(g);g.connect(A.bus);o.start(t);o.stop(t+1.6)}
+function drum(t,v){const c=A.ctx,o=c.createOscillator(),g=c.createGain();o.frequency.setValueAtTime(115,t);o.frequency.exponentialRampToValueAtTime(52,t+.16);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+.28);o.connect(g);g.connect(A.bus);o.start(t);o.stop(t+.3)}
+function tap(t,v){const c=A.ctx,n=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();n.buffer=A.noise;f.type='bandpass';f.frequency.value=1500;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+.12);n.connect(f);f.connect(g);g.connect(A.bus);n.start(t);n.stop(t+.14)}
+function brass(t,notes,d,v){const c=A.ctx;notes.forEach(m=>[-5,5].forEach(cents=>{const o=c.createOscillator(),f=c.createBiquadFilter(),g=c.createGain();o.type='sawtooth';o.frequency.value=hz(m);o.detune.value=cents;f.type='lowpass';f.frequency.setValueAtTime(260,t);f.frequency.linearRampToValueAtTime(1100,t+.22);f.frequency.linearRampToValueAtTime(520,t+d);g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v,t+.16);g.gain.setValueAtTime(v,t+d-.25);g.gain.linearRampToValueAtTime(.0001,t+d);o.connect(f);f.connect(g);g.connect(A.bus);o.start(t);o.stop(t+d+.02)}))}
+function horn(t,m,d,v){const c=A.ctx,o=c.createOscillator(),f=c.createBiquadFilter(),g=c.createGain(),l=c.createOscillator(),lg=c.createGain();o.type='sawtooth';o.frequency.setValueAtTime(hz(m)*.97,t);o.frequency.linearRampToValueAtTime(hz(m),t+.06);l.frequency.value=5.2;lg.gain.value=4;l.connect(lg);lg.connect(o.frequency);f.type='lowpass';f.frequency.setValueAtTime(700,t);f.frequency.linearRampToValueAtTime(2300,t+.08);f.frequency.linearRampToValueAtTime(1200,t+d);g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v,t+.05);g.gain.setValueAtTime(v*.8,t+Math.max(.06,d-.08));g.gain.linearRampToValueAtTime(.0001,t+d);o.connect(f);f.connect(g);g.connect(A.bus);o.start(t);l.start(t);o.stop(t+d+.02);l.stop(t+d+.02)}
+const CHORDS=[[50,57,62],[48,55,60],[46,53,58],[45,52,61]];
+const FANFARE={0:[69,2],3:[69,1],4:[74,4],8:[72,3],11:[69,1],12:[67,4],16:[70,3],19:[69,1],20:[65,4],24:[69,3],27:[76,1],28:[73,4]};
+const CALM=[62,0,65,0,69,0,0,67,65,0,62,0,60,0,0,0,62,0,69,0,70,0,69,0,67,0,65,0,62,0,0,0];
+function sched(){const c=A.ctx;if(!c||c.state!=='running')return;
+  while(A.next<c.currentTime+.3){const t=A.next,s=A.i++;
+    if(A.mode==='test'){const k=s%16;if(k%3===0||k===14)drum(t,k===0?.9:.55);if(s%3===0){const m=CALM[(s/3)%32];if(m)pluck(t,m,.42)}A.next+=.24}
+    else{const b=.34,k=s%32,bar=k%8;if(bar===0)brass(t,CHORDS[k/8],b*8-.05,.075);if(bar===0||bar===3||bar===4||bar===6)drum(t,bar===0?1:.65);if(bar===2||bar===6||bar===7)tap(t,.3);const f=FANFARE[k];if(f&&Math.floor(s/32)%2===0)horn(t,f[0],f[1]*b-.03,.2);A.next+=b}}}
+function setMode(m){if(A.mode===m)return;A.mode=m;A.i=0;if(A.ctx)A.next=Math.max(A.next,A.ctx.currentTime+.05);musicLevel()}
+function tone(f,t,d,type,v,to){const c=A.ctx,o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(f,c.currentTime+t);if(to)o.frequency.exponentialRampToValueAtTime(to,c.currentTime+t+d);g.gain.setValueAtTime(.0001,c.currentTime+t);g.gain.exponentialRampToValueAtTime(v,c.currentTime+t+.01);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+t+d);o.connect(g);g.connect(A.sfx);o.start(c.currentTime+t);o.stop(c.currentTime+t+d+.02)}
+const SFX={
+ click(){tone(520,0,.05,'triangle',.5)},
+ pick(){tone(392,0,.08,'triangle',.6,587)},
+ ok(){[659,880,1319].forEach((f,i)=>tone(f,i*.09,.28,'triangle',.8))},
+ bad(){tone(196,0,.2,'square',.28);tone(147,.17,.38,'square',.28)},
+ tick(){tone(1040,0,.05,'sine',.6)},
+ timeup(){tone(494,0,.6,'sawtooth',.28,98)},
+ win(){[523,659,784,1047].forEach((f,i)=>tone(f,i*.12,.38,'triangle',.8));tone(1319,.5,.7,'triangle',.7)},
+ rank(){[392,494,587].forEach((f,i)=>tone(f,i*.13,.34,'triangle',.65))}
+};
+function play(n){if(A.ctx&&A.on&&A.ctx.state==='running')SFX[n]()}
+addEventListener('pointerdown',boot,true);addEventListener('keydown',boot,true);
+document.addEventListener('visibilitychange',()=>{if(!A.ctx)return;document.hidden?A.ctx.suspend():A.ctx.resume()});
+const duck=v=>{A.ducked=v;musicLevel()};
+audio.addEventListener('play',()=>duck(true));audio.addEventListener('pause',()=>duck(false));audio.addEventListener('ended',()=>duck(false));
+document.addEventListener('click',e=>{
+  const s=e.target.closest('.snd');
+  if(s){A.on=!A.on;try{localStorage.setItem('peh-snd',A.on?'1':'0')}catch(x){}if(A.ctx)A.master.gain.setTargetAtTime(A.on?1:0,A.ctx.currentTime,.05);s.innerHTML=SPK(A.on);s.setAttribute('aria-pressed',A.on);return}
+  if(e.target.closest('.cta:not(:disabled)'))play('click');
+  else if(e.target.closest('.who'))play('pick');
+},true);
+function go(h){gesture=true;if(location.hash!=='#'+h){skipHash=true;location.hash=h}route(h)}
+function route(h){
+  if(cleanup){cleanup();cleanup=null}
+  h=h||location.hash.slice(1)||'inicio';const m=h.match(/^(audio|mision|prueba|respuesta|ranking)-(\d+)$/);let r;
+  if(m){const n=+m[2],k=m[1];
+   if(k==='audio'&&n>=1&&n<=17)r=n===1?V.inicio():V.audio(n);
+   else if(k==='ranking'&&(n===1||n===2))r=V.ranking(n);
+   else if(k!=='audio'&&k!=='ranking'&&n>=1&&n<=6)r=V[k](n-1);else r=V.inicio()}
+  else if(h==='registro')r=V.registro();else r=V.inicio();
+  cleanup=r||null;window.scrollTo(0,0);
+}
+addEventListener('hashchange',()=>{if(skipHash){skipHash=false;return}route()});
+route();
+</script>
+
+</body>
+</html>
